@@ -51,7 +51,7 @@ const transform: AxiosTransform = {
       throw new Error(t('sys.api.apiRequestFailed'));
     }
     //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
-    const { code, result, message } = data;
+    const { code, data: result, msg: message } = data;
 
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && Reflect.has(data, 'code') && code === ResultEnum.SUCCESS;
@@ -274,7 +274,33 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
     ),
   );
 }
-export const defHttp = createAxios();
+export const defHttp = createAxios({});
+
+// 登录模块
+export const loginAxios = createAxios({
+  requestOptions: {
+    urlPrefix: '/login',
+    withToken: false,
+    retryRequest: {
+      isOpenRetry: false,
+      count: -1,
+      waitTime: 100,
+    },
+  },
+});
+
+// 主业务模块
+export const mainAxios = createAxios({
+  requestOptions: {
+    urlPrefix: '/main',
+    withToken: true,
+    retryRequest: {
+      isOpenRetry: false,
+      count: -1,
+      waitTime: 100,
+    },
+  },
+});
 
 // other api url
 // export const otherHttp = createAxios({

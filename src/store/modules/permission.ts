@@ -6,7 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n';
 import { useUserStore } from './user';
 import { useAppStoreWithOut } from './app';
 import { toRaw } from 'vue';
-import { transformObjToRoute, flatMultiLevelRoutes } from '@/router/helper/routeHelper';
+import { flatMultiLevelRoutes } from '@/router/helper/routeHelper';
 import { transformRouteToMenu } from '@/router/helper/menuHelper';
 
 import projectSetting from '@/settings/projectSetting';
@@ -18,11 +18,12 @@ import { ERROR_LOG_ROUTE, PAGE_NOT_FOUND_ROUTE } from '@/router/routes/basic';
 
 import { filter } from '@/utils/helper/treeHelper';
 
-import { getMenuList } from '@/api/sys/menu';
-import { getPermCode } from '@/api/sys/user';
+import { getMenuList } from '@/api/main/my/my';
+// import { getPermCode } from '@/api/sys/user';
 
 import { useMessage } from '@/hooks/web/useMessage';
 import { PageEnum } from '@/enums/pageEnum';
+import { userMenu } from '@/router/useMenu';
 
 interface PermissionState {
   // Permission code list
@@ -104,7 +105,8 @@ export const usePermissionStore = defineStore({
       this.lastBuildMenuTime = 0;
     },
     async changePermissionCode() {
-      const codeList = await getPermCode();
+      // const codeList = await getPermCode();
+      const codeList = [];
       this.setPermCodeList(codeList);
     },
 
@@ -223,13 +225,15 @@ export const usePermissionStore = defineStore({
           try {
             await this.changePermissionCode();
             routeList = (await getMenuList()) as AppRouteRecordRaw[];
+            const { convertToMenu } = userMenu(routeList);
+            routeList = convertToMenu();
           } catch (error) {
             console.error(error);
           }
 
           // Dynamically introduce components
           // 动态引入组件
-          routeList = transformObjToRoute(routeList);
+          // routeList = transformObjToRoute(routeList);
 
           //  Background routing to menu structure
           //  后台路由到菜单结构

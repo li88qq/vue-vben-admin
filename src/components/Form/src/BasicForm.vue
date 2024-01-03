@@ -75,6 +75,7 @@
     'submit',
     'register',
     'field-value-change',
+    'registerOk',
   ]);
 
   const attrs = useAttrs();
@@ -318,6 +319,7 @@
   onMounted(() => {
     initDefault();
     emit('register', formActionType);
+    emit('registerOk');
   });
 </script>
 <style lang="less">

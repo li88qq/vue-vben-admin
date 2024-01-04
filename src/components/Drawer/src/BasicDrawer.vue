@@ -49,7 +49,7 @@
 
   const props = defineProps(basicProps);
 
-  const emit = defineEmits(['open-change', 'ok', 'close', 'register']);
+  const emit = defineEmits(['open-change', 'ok', 'close', 'register', 'registerOk']);
 
   const openRef = ref(false);
   const attrs = useAttrs();
@@ -65,7 +65,10 @@
 
   const instance = getCurrentInstance();
 
-  instance && emit('register', drawerInstance, instance.uid);
+  if (instance) {
+    emit('register', drawerInstance, instance.uid);
+    emit('registerOk', drawerInstance, instance.uid);
+  }
 
   const getMergeProps = computed(() => {
     return deepMerge(props, unref(propsRef));

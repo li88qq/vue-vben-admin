@@ -6,6 +6,11 @@ export const columns: BasicColumn[] = [
     dataIndex: 'name',
   },
   {
+    title: '业务操作',
+    dataIndex: 'ops',
+    width: 120,
+  },
+  {
     title: '操作',
     dataIndex: 'action',
     width: 120,

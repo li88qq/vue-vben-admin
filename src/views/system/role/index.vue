@@ -15,18 +15,17 @@
     </BasicTable>
     <AddModal @register="addModal" @success="handleSuccess" />
     <EditModal @register="editModal" @success="handleSuccess" />
-    <AuthMenuDrawer @register="authMenuDrawer" @success="handleSuccess" />
+    <AuthMenuDrawer ref="authMenuDrawerRef" @success="handleSuccess" />
     <ViewModal @register="viewModal" />
   </PageWrapper>
 </template>
 <script setup lang="ts">
-  import { reactive, onMounted, defineAsyncComponent } from 'vue';
+  import { ref, reactive, onMounted, defineAsyncComponent } from 'vue';
   import { BasicTable, useTable } from '@/components/Table';
   import { getPage, deleteRole } from '@/api/main/system/role';
   import { PageWrapper } from '@/components/Page';
   import { columns, searchFormSchema } from './data';
   import { useModal } from '@/components/Modal';
-  import { useDrawer } from '@/components/Drawer';
   import ActionCell from './components/actioncell/index.vue';
   import OpsCell from './components/opscell/index.vue';
 
@@ -40,7 +39,8 @@
   const [addModal, { openModal: openAdd }] = useModal();
   const [editModal, { openModal: openEdit }] = useModal();
   const [viewModal, { openModal: openView }] = useModal();
-  const [authMenuDrawer, { openDrawer: openAuthMenuDrawer }] = useDrawer();
+
+  const authMenuDrawerRef = ref();
 
   const [registerTable, { reload }] = useTable({
     // title: '列表',
@@ -88,7 +88,7 @@
   };
   //授权菜单
   const authMenuAc = async ({ id }) => {
-    await openAuthMenuDrawer(true, { id });
+    await authMenuDrawerRef.value?.open({ id });
   };
 
   onMounted(() => {

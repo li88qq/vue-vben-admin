@@ -4,7 +4,16 @@
       <a-checkbox v-model:checked="formRt.isAllMenu">授权全部菜单</a-checkbox>
     </a-card>
     <a-card size="small" v-if="!formRt.isAllMenu">
-      <a-tree v-bind="treeRt" @check="onCheck" />
+      <a-tree v-bind="treeRt" @check="onCheck">
+        <template #title="{ title, children }">
+          <div>
+            <span class="tree-title">{{ title }}</span>
+            <template v-if="children?.length > 0">
+              <a-checkbox>全选</a-checkbox>
+            </template>
+          </div>
+        </template>
+      </a-tree>
     </a-card>
   </div>
 </template>
@@ -12,6 +21,7 @@
   import { reactive, toRaw, watch } from 'vue';
   import { getList } from '@/api/main/system/menu';
   import { getAuthMenus } from '@/api/main/system/role';
+  import { cloneDeep } from 'lodash-es';
 
   const props = defineProps({
     data: {
@@ -24,15 +34,18 @@
     menuIds: [],
   });
 
+  // 保存菜单原数据
+  const mentData = {
+    idMap: {}, //idMap
+    menus: [], //菜单列表
+  };
+
   const treeRt = reactive({
     checkable: true,
     treeData: [],
-    fieldNames: {
-      children: 'children',
-      title: 'name',
-      key: 'id',
-    },
     checkedKeys: [],
+    height: 700, // 使用该属性,虚拟滚动
+    checkStrictly: true, // checkable 状态下节点选择完全受控（父子节点选中状态不再关联）
   });
 
   const init = async () => {
@@ -53,6 +66,7 @@
   };
 
   const initMenu = (data) => {
+    mentData.menus = cloneDeep(data);
     const tree = buildTree(data);
     treeRt.treeData = tree;
     treeRt.checkedKeys = formRt.menuIds;
@@ -61,9 +75,12 @@
   const buildTree = (data = []) => {
     const idMap = {};
     data.forEach((item, index) => {
-      const { id } = item;
+      const { id, name } = item;
       idMap[id] = index;
+      item['title'] = name;
+      item['key'] = id;
     });
+    mentData.idMap = idMap;
     data.forEach((item) => {
       const { parentId } = item;
       if (parentId > 0) {
@@ -72,6 +89,7 @@
           const parent = data[index];
           if (!parent['children']) {
             parent['children'] = [];
+            // parent['checkable'] = false; //设置为不可选
           }
           parent['children'].push(item);
         }
@@ -85,10 +103,12 @@
    */
   const validate = async () => {
     const { isAllMenu } = toRaw(formRt);
-    const { checkedKeys } = toRaw(treeRt);
+    const {
+      checkedKeys: { checked },
+    } = toRaw(treeRt);
     return {
       isAllMenu: isAllMenu ? 1 : 0,
-      menuIds: checkedKeys,
+      menuIds: checked,
     };
   };
 
@@ -108,3 +128,8 @@
     validate,
   });
 </script>
+<style scoped lang="less">
+  .tree-title {
+    margin-right: 24px;
+  }
+</style>

@@ -1,30 +1,21 @@
 <template>
-  <BasicDrawer v-bind="drawerRt" @register="registerDrawer" @ok="handleSubmit">
-    <div
-      style="
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-end;
-        margin-bottom: 8px;
-      "
-    >
+  <a-drawer v-bind="drawerRt">
+    <template #extra>
       <a-space>
-        <a-button type="primary" @click="handleSubmit">保存</a-button>
-        <a-button type="default" @click="closeDrawer">取消</a-button>
+        <a-button type="primary" @click="saveAc">保存</a-button>
+        <a-button type="default" @click="close">取消</a-button>
       </a-space>
-    </div>
+    </template>
     <Form ref="formRef" :data="formRt" />
-  </BasicDrawer>
+  </a-drawer>
 </template>
 <script lang="ts" setup>
   import { ref, reactive, toRaw, defineAsyncComponent } from 'vue';
-  import { BasicDrawer, useDrawerInner } from '@/components/Drawer';
   import { authMenu } from '@/api/main/system/role';
 
   const Form = defineAsyncComponent(() => import('./Form.vue'));
 
-  const emit = defineEmits(['success', 'register']);
+  const emit = defineEmits(['success']);
 
   const formRef = ref();
 
@@ -33,27 +24,38 @@
   });
 
   const drawerRt = reactive({
-    title: '编辑',
+    open: false,
+    title: '角色菜单授权',
     destroyOnClose: true,
+    closable: false,
+    size: 'large',
   });
 
-  const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-    setDrawerProps({ confirmLoading: false });
-    formRt.id = data['id'];
-  });
+  const open = (data) => {
+    Object.assign(formRt, data);
+    drawerRt.open = true;
+  };
 
-  async function handleSubmit() {
+  const close = () => {
+    drawerRt.open = false;
+  };
+
+  const saveAc = async () => {
     try {
-      setDrawerProps({ confirmLoading: true });
       const values = await formRef.value.validate();
       const { id } = toRaw(formRt);
       const params = { roleId: id, ...values };
       await authMenu(params);
-      // TODO custom api
-      closeDrawer();
+      // // TODO custom api
+      close();
       emit('success');
-    } finally {
-      setDrawerProps({ confirmLoading: false });
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
+
+  defineExpose({
+    open,
+    close,
+  });
 </script>

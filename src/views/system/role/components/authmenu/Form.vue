@@ -4,16 +4,7 @@
       <a-checkbox v-model:checked="formRt.isAllMenu">授权全部菜单</a-checkbox>
     </a-card>
     <a-card size="small" v-if="!formRt.isAllMenu">
-      <a-tree v-bind="treeRt" @check="onCheck">
-        <template #title="{ title, children }">
-          <div>
-            <span class="tree-title">{{ title }}</span>
-            <template v-if="children?.length > 0">
-              <a-checkbox>全选</a-checkbox>
-            </template>
-          </div>
-        </template>
-      </a-tree>
+      <a-tree v-bind="treeRt" @check="onCheck" />
     </a-card>
   </div>
 </template>

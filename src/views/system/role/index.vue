@@ -55,6 +55,7 @@
     useSearchForm: true,
     showTableSetting: true,
     bordered: true,
+    immediate: false,
   });
 
   //新增

@@ -50,6 +50,7 @@
     bordered: true,
     pagination: false,
     isTreeTable: true,
+    immediate: false,
     afterFetch: (data) => buildTree(data),
   });
 
@@ -61,7 +62,7 @@
       const { id } = item;
       idMap[id] = index;
     });
-    data.forEach((item) => {
+    list.forEach((item) => {
       const { parentId } = item;
       if (parentId > 0) {
         const index = idMap[parentId];
@@ -74,7 +75,7 @@
         }
       }
     });
-    return list.filter((item) => item.parentId === 0);
+    return list.filter((item) => item['parentId'] === 0);
   };
 
   //新增
